@@ -41,7 +41,7 @@ No obstante, por el mensaje de error y por el método donde se ubica, está clar
 
 ```xtend
 class Flota extends Cliente {
-	List<Auto> autos = newArrayList
+  List<Auto> autos = newArrayList
 ```
 
 Ejecutamos los tests:
@@ -89,9 +89,9 @@ eso nos permite visualizar fácilmente los valores, pero nos obliga a tener vari
 Corregimos nuestro error 
 
 ```xtend
-	def montoMaximoDeuda() {
-		if (autos.size > 5) 10000 else 5000
-	}
+  def montoMaximoDeuda() {
+    if (autos.size > 5) 10000 else 5000
+  }
 ```
 
 y ahora sí tenemos los dos tests ok.
