@@ -96,6 +96,26 @@ Corregimos nuestro error
 
 y ahora sí tenemos los dos tests ok.
 
-## Siguiente paso
+### Contras del debugging
 
-- Nuestro próximo paso es el branch paso2
+Debuggear es una herramienta útil para encontrar y solucionar un error:
+
+- tenemos a mano todo el contexto de ejecución
+- podemos inspeccionar las referencias (para pensar: ¿qué pasa con el encapsulamiento?)
+- avanzar paso a paso y ver el cambio de estado de los objetos nos ayuda a entender lo que pasa
+
+<br>
+pero por otra parte es importante destacar
+
+- que si bien es cómodo, necesitamos invertir tiempo en tener en nuestra mente el estado de los objetos,
+- luego de un tiempo, nuestra atención pierde el foco y es fácil olvidar lo que estamos resolviendo
+- es preferible estar concentrado a la hora de desarrollar y no confiar en que luego al debuggear lo podremos resolver.
+
+## Comentar código
+
+Una instrucción maliciosa
+
+## Println?
+
+Ubicar dónde está el error
+
