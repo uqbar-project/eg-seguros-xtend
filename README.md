@@ -32,12 +32,12 @@ El stack trace permite recorrer la jerarquía de envío de mensajes directamente
 
 ![navigating the stack trace](/images/stack_trace.gif)
 
-Ok, sabemos que el problema ocurre cuando queremos agregar un auto a la colección de autos del cliente. Hay dos cosas que podrían ser mejor:
+Ok, sabemos que el problema ocurre cuando queremos agregar un auto a la colección de autos del cliente. Cosas que podrían mejorarse:
 
 - el mensaje de error `NullPointerException` nos da una pista, pero no dice qué referencia está sin inicializar
-- al hacer click sobre el primer error, no se posiciona en la verdadera línea que rompe, que es `autos.add(auto)`
+- al hacer click sobre el primer elemento del stack trace, no se posiciona en la línea donde verdaderamente ocurre el error, que es `autos.add(auto)`
 
-No obstante, por el mensaje de error y por el método donde se ubica, está claro que el único mensaje que enviamos es `add` a la referencia autos, que está sin inicializar. Entonces, tenemos nuestro primer problema resuelto:
+No obstante, por el mensaje de error y por el método donde se ubica, está claro que el problema se origina en el mensaje `add` a la referencia `autos`, que está sin inicializar. Entonces, tenemos nuestro primer problema resuelto:
 
 ```xtend
 class Flota extends Cliente {
@@ -59,7 +59,7 @@ El segundo test se rompe, volvemos con la técnica de revisar el stack trace:
 El test permite darnos información relevante:
 
 - sabemos que la flota tiene muchos autos
-- y que tiene una deuda abultada de $ 15.000
+- y que tiene una deuda abultada (de $ 15.000)
 - entonces no debería poder cobrar el siniestro...
 - pero la condición **no** se cumple (falla el assert), porque sí estaría pudiendo cobrar el siniestro
 
@@ -67,10 +67,10 @@ Entonces una segunda opción es debuggear el test, pondremos un **breakpoint** q
 
 ![debugger_use.gif](/images/debugger_use.gif)
 
-Para agregar el breakpoint podemos utilizar el _shortcut_ Ctrl + Shift + B, o bien click sobre el margen izquierdo de la línea. A continuación describimos nuestra línea de acción de lo que ves en el video:
+Para agregar el breakpoint podemos utilizar el _shortcut_ Ctrl + Shift + B, o bien click sobre el margen izquierdo de la línea. A continuación describimos el proceso que se puede ver en el video:
 
-- ¿por qué el breakpoint en la línea que compara la deuda contra el máximo de deuda? Porque el assert que falla nos lleva al mensaje `puedeCobrarSiniestro()` (F3 o ctrl + click)
-- luego seleccionamos solamente el test que falla en la ventana JUnit, y con el botón derecho elegimos el comando Debug, que nos sugiere cambiar la perspectiva de Eclipse. Aceptamos, ya que aparecen nuevas ventanas que serán interesantes para lo que viene.
+- ¿por qué definimos el breakpoint en la línea que compara la deuda contra el máximo de deuda? Porque el assert que falla nos lleva al mensaje `puedeCobrarSiniestro()` (F3 o ctrl + click), que tiene justamente esa línea
+- luego seleccionamos solamente el test que falla en la ventana JUnit, y con el botón derecho elegimos el comando Debug, que nos sugiere cambiar la perspectiva de Eclipse. Aceptamos, ya que aparecen nuevas ventanas que nos serán muy útiles
 - el test se ejecuta hasta el punto en el que tiene que evaluar la expresión `this.deuda < this.montoDeuda`, entonces se detiene la ejecución, se muestra el stack trace hasta donde llegamos y tenemos nosotros el control
 - podemos avanzar a la siguiente línea, si la hubiera, con F6, con F5 avanzar hacia adentro (esto provoca que cualquier envío de mensaje nos haga ingresar al método del objeto al que llamamos), o continuar la ejecución normalmente (Resume - F8)
 
@@ -81,7 +81,8 @@ Para agregar el breakpoint podemos utilizar el _shortcut_ Ctrl + Shift + B, o bi
 
 ![debugger extract local variable](/images/debugger_extract_local_variable.gif)
 
-eso nos permite visualizar fácilmente los valores, pero nos obliga a tener variables locales cuando no necesariamente lo necesitamos
+eso nos permite visualizar fácilmente los valores, pero nos obliga a tener variables locales (algo que nosotros no te aconsejamos)
+
 - entonces otra opción es ir a la solapa Expressions, y escribir la expresión que queremos evaluar: un detalle interesante es que `this.montoMaximoDeuda` es una expresión válida en Xtend, pero no dentro del contexto del debugger, donde debemos agregar los paréntesis: `this.montoMaximoDeuda()` para que funcione
 - y allí finalmente vemos que 15000 < 20000 se cumple, pero resulta que el monto máximo de una flota con muchos autos debería ser $ 10.000
 
