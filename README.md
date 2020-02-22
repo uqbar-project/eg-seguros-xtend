@@ -153,7 +153,7 @@ Otro de los usos conocidos del print por consola es dejar rastros (como las migu
 
 No obstante, para materias más avanzadas o bien cuando es necesario hacer un test de integración mucho más complejo de automatizar, imprimir por consola es una técnica que sigue siendo necesaria conforme aumenta la complejidad de las aplicaciones que construimos.
 
-## Comentar código que falla:
+## Comentar código que falla
 
 Volviendo al test que falla, una técnica que puede ayudar es comentar el código que falla. Entonces comentaremos la funcionalidad de registrarConsulta:
 
