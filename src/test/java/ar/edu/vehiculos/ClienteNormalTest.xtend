@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertTrue
+import static org.junit.jupiter.api.Assertions.assertFalse
 
 @DisplayName("Dado un cliente normal")
 class ClienteNormalTest {
@@ -28,7 +29,8 @@ class ClienteNormalTest {
 	@Test
 	def void clienteConDeudaNoPuedeCobrarSiniestro() {
 		clienteNormal.generarDeuda(50)
-		assertTrue(clienteNormal.puedeCobrarSiniestro, "El cliente normal sin deuda debería poder crear un siniestro")
-		assertTrue(clienteNormal.tieneConsultas(LocalDate.now))
+		assertFalse(clienteNormal.puedeCobrarSiniestro, "El cliente normal con deuda no debería poder crear un siniestro")
+		assertTrue(clienteNormal.tieneConsultas(LocalDate.now), "El cliente no tiene consultas hechas para el día actual")
 	}
+
 }

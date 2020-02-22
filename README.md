@@ -125,14 +125,101 @@ De esa misma manera trabajan los electricistas para encontrar una fuga eléctric
 
 En nuestro caso, se puede implementar de varias maneras, pero las más conocidas son dos:
 
-- imprimir por consola para ir dejando rastros (como las miguitas de pan del cuento de Hansel y Gretel)
-- o bien comentar el código para ver qué efectos tiene en el código
+- imprimir por consola
+- o bien comentar el código para ver qué efectos provoca
 
+## Segundo escenario
 
-ClienteMoroso
+Ejecutamos ahora los tests correspondientes al cliente normal (en la clase `ClienteNormalTest`), y vemos que uno de los tests falla:
 
-## Comentar código
+![cliente normal test failed](/images/test_failed_cliente_normal.png)
 
-Una instrucción maliciosa
+### Print, print, print
+
+Si aprovechando el stack trace del test nos ubicamos una vez más en el origen del error, podríamos imprimir por consola las variables relevantes **antes** del if que produce el `NullPointerException`:
+
+![adding println](/images/println_as_debugger.gif)
+
+Algunos detalles de lo que hacemos:
+
+- el primer println lo hacemos con un string tradicional, que se marca con comillas dobles (`"`)
+- el segundo println lo hacemos utilizando el string multilínea de Xtend, que se marca con tres comillas simples (`'''`). Para interpolar variables, solo debemos presionar ctrl + espacio para que active los caracteres de escape `«` y `»`
+- para que la consola imprima valores nulos, utilizamos el [Elvis operator](https://en.wikipedia.org/wiki/Elvis_operator). En nuestro caso `ultimaConsulta ?: "nula"` significa que si el valor de ultimaConsulta es nulo, se debe retornar el valor "nula"
+
+Otro de los usos conocidos del print por consola es dejar rastros (como las miguitas de pan del cuento de Hansel y Gretel), del estilo "Paso 1", "Paso 2", "Paso 3 - dentro del if", "Paso 3 - por el else", etc. Cuando no tenemos interfaz de usuario, ni persistencia, ni la necesidad de lograr que dos o más ambientes de objetos se comuniquen (lo que se llama distribución), esta técnica es mucho más tediosa e infructífera que el debugging que ya hemos presentado:
+
+- no podemos detener la ejecución para poder ver todo el contexto, solo lo que mandamos a imprimir
+- requiere un trabajo de asociación de leer código de diferentes clases e interpretar el output de la consola al mismo tiempo
+
+No obstante, para materias más avanzadas o bien cuando es necesario hacer un test de integración mucho más complejo de automatizar, imprimir por consola es una técnica que sigue siendo necesaria conforme aumenta la complejidad de las aplicaciones que construimos.
+
+## Comentar código que falla:
+
+Volviendo al test que falla, una técnica que puede ayudar es comentar el código que falla. Entonces comentaremos la funcionalidad de registrarConsulta:
+
+![comment failing code](/images/comment_failing_code.gif)
+
+En lugar de error los tests muestran una falla: ahora comentamos el segundo assert del test y los tests pasan en verde. El lector puede preguntarse, ¿qué sentido tiene? 
+
+Las dos funcionalidades que resuelve cada cliente normal son:
+
+- actualizar el saldo
+- registrar la consulta si el cliente es moroso
+
+Lo que pudimos hacer hasta el momento es aislar la primera funcionalidad, y comprobar que está funcionando bien. Para continuar, debemos descomentar entonces el assert y la llamada al método `registrarConsulta`, con la ventaja de saber que la otra funcionalidad cumple con las especificaciones.
+
+El primer problema es fácil de resolver: al buscar la última vez que se consultó puede ser que el cliente no haya hecho ninguna consulta. Entonces en ese caso debemos contemplar que la ultima consulta puede no existir:
+
+![fixing NPE, still failing test](/images/fixing_npe_still_failing_test.gif)
+
+Ahora tenemos un _failure_, parece que no se registraron consultas para ese cliente en ese día. Necesitamos más información, vamos a volver a debuggear a ver si podemos entender mejor qué pasó:
+
+![debugging second failing test](/images/debugging_second_failing_test.gif)
+
+Uhm... en la imagen no se llega a apreciar, pero estamos parados en este método:
+
+```xtend
+	def tieneConsultas(LocalDate dia) {
+		this.diasDeConsulta.exists [ diaConsulta | diaConsulta === dia ]
+	}
+```
+
+Eso quiere decir que estamos buscando que el elemento que está en la colección sea **idéntico** (triple igual) al día que le pasamos como parámetro. Es decir, ambas referencias deberían apuntar al mismo objeto, y eso no ocurre: son dos objetos que representan la misma fecha, pero están en posiciones de memoria diferente.
+
+Si cambiamos la identidad (triple igual) por una igualdad (doble igual), la condición se relaja un poco más: para LocalDate el equal se redefine y dos fechas son iguales si representan la misma fecha (sin necesariamente apuntar ambas referencias al mismo objeto). Vemos lo que produce el cambio:
+
+![test fixed! (second part)](/images/tests_fixed_second_part.gif)
+
+Ahora sí, tenemos los tests en verde, lo cual es una buena señal... aunque no es garantía de que nuestro código esté libre de errores. 
+
+### Comentar código para ver si fallan los tests
+
+Un ejemplo interesante podría ser comentar la decisión del método `registrarConsulta` y hacer que **siempre se registre cada consulta**, incluso cuando el cliente normal no es moroso:
+
+![comment tests to detect bad code](/images/comment_failing_code.gif)
+
+Al comentar el código, ¡el test no falla! Esto muestra que nos está faltando cubrir cómo se registran las consultas para el caso del cliente que no debe plata. La solución es agregar un assert más en ese test:
+
+```xtend
+	@DisplayName("si no tiene deuda puede cobrar el siniestro")
+	@Test
+	def void clienteSinDeudaPuedeCobrarSiniestro() {
+		assertTrue(clienteNormal.puedeCobrarSiniestro, "El cliente normal sin deuda debería poder crear un siniestro")
+		assertFalse(clienteNormal.tieneConsultas(LocalDate.now), "El cliente no debería tener consultas hechas para el día actual")
+	}
+```
+
+y probar con el código de negocio comentado que **ahora sí el test falla**. Volvemos a sacar los comentarios en el código de negocio original, y tenemos los tests verdes nuevamente, pero con más robustez que antes.
+
+## Resumen
+
+Hemos visto en este ejemplo varias técnicas para corregir errores:
+
+- análisis del código a partir del stack trace
+- debugging
+- imprimir por consola en determinados puntos del código
+- comentar código para ver los efectos que produce (e incluso para detectar fallas en los tests)
+
+No hay una técnica sola que sea mejor que otras, de hecho todas se complementan para ayudarnos a corregir las cosas cuando salen mal, **que es lo más esperable cuando se trata de seres humanos que somos hermosamente imperfectos**. 
 
 
