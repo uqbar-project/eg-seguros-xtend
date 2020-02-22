@@ -1,5 +1,6 @@
 package ar.edu.seguros
 
+import java.time.LocalDate
 import java.util.List
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.Data
@@ -11,13 +12,33 @@ abstract class Cliente {
 		deuda = deuda + monto
 	}
 
+	def tieneDeuda() {
+		deuda > 0
+	}
+
 	def boolean puedeCobrarSiniestro()
 }
 
 class ClienteNormal extends Cliente {
+	
+	List<LocalDate> diasDeConsulta = newArrayList
+	
+	def void registrarConsulta() {
+		val ultimaConsulta = this.diasDeConsulta.last
+		if (this.tieneDeuda && ultimaConsulta < LocalDate.now) {
+			this.diasDeConsulta.add(LocalDate.now())
+		}
+	}
+
+	def tieneConsultas(LocalDate dia) {
+		this.diasDeConsulta.exists [ diaConsulta | diaConsulta === dia ]
+	}
+
 	override puedeCobrarSiniestro() {
+		registrarConsulta
 		return deuda == 0
 	}
+
 }
 
 class Flota extends Cliente {

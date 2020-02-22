@@ -10,6 +10,8 @@ Un sistema de seguros de automotor define cuándo pagar un siniestro, las condic
 - para los clientes normales, si no son morosos (la deuda debe ser 0)
 - para las flotas de autos, se soporta una deuda de hasta $ 10.000 si el cliente tiene más de 5 vehículos ó hasta $ 5.000 en caso contrario
 
+> Como requerimiento extra, los clientes normales deben registran las fechas en los que se consulta si se puede pagar un siniestro **solamente cuando tienen deuda** (sin duplicarlas, si un cliente con deuda consultó 3 veces el sábado pasado y 5 veces el lunes, debe figurar el sábado y el lunes como días en los que se realizó la consulta).
+
 ## Objetivo
 
 Queremos entender diferentes metodologías para corregir errores. 
@@ -111,11 +113,26 @@ pero por otra parte es importante destacar
 - luego de un tiempo, nuestra atención pierde el foco y es fácil olvidar lo que estamos resolviendo
 - es preferible estar concentrado a la hora de desarrollar y no confiar en que luego al debuggear lo podremos resolver.
 
+## Búsqueda binaria del error
+
+El [algoritmo de búsqueda binaria](https://en.wikipedia.org/wiki/Binary_search_algorithm) se suele aprender como técnica para adivinar un número, por ejemplo del 1 al 8:
+
+- ¿es mayor a 4? sí (descartamos 1, 2, 3, 4, podrían ser 5, 6, 7, 8)
+- ¿es mayor a 6? sí (descartamos 5, 6, podrían ser 7 u 8)
+- ¿es mayor a 7? no => entonces es 7 (descartado 8, solo queda 7)
+
+De esa misma manera trabajan los electricistas para encontrar una fuga eléctrica o un cortocircuito: se van detectando puntos intermedios por donde pasa el código hasta encontrar la falla.
+
+En nuestro caso, se puede implementar de varias maneras, pero las más conocidas son dos:
+
+- imprimir por consola para ir dejando rastros (como las miguitas de pan del cuento de Hansel y Gretel)
+- o bien comentar el código para ver qué efectos tiene en el código
+
+
+ClienteMoroso
+
 ## Comentar código
 
 Una instrucción maliciosa
 
-## Println?
-
-Ubicar dónde está el error
 
