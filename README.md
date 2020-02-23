@@ -107,9 +107,9 @@ Debuggear es una herramienta útil para encontrar y solucionar un error:
 - avanzar paso a paso y ver el cambio de estado de los objetos nos ayuda a entender lo que pasa
 
 <br>
-pero por otra parte es importante destacar
+por otra parte
 
-- que si bien es cómodo, necesitamos invertir tiempo en tener en nuestra mente el estado de los objetos,
+- si bien es cómodo, necesitamos invertir tiempo en tener en nuestra mente el estado de los objetos,
 - luego de un tiempo, nuestra atención pierde el foco y es fácil olvidar lo que estamos resolviendo
 - es preferible estar concentrado a la hora de desarrollar y no confiar en que luego al debuggear lo podremos resolver.
 
@@ -126,7 +126,7 @@ De esa misma manera trabajan los electricistas para encontrar una fuga eléctric
 En nuestro caso, se puede implementar de varias maneras, pero las más conocidas son dos:
 
 - imprimir por consola
-- o bien comentar el código para ver qué efectos provoca
+- comentar el código para ver qué efectos provoca
 
 ## Segundo escenario
 
@@ -136,7 +136,7 @@ Ejecutamos ahora los tests correspondientes al cliente normal (en la clase `Clie
 
 ### Print, print, print
 
-Si aprovechando el stack trace del test nos ubicamos una vez más en el origen del error, podríamos imprimir por consola las variables relevantes **antes** del if que produce el `NullPointerException`:
+Aprovechando el stack trace del test nos ubicamos en el origen del error e imprimimos por consola las variables relevantes **antes** del if donde se produce el `NullPointerException`:
 
 ![adding println](/images/println_as_debugger.gif)
 
@@ -155,7 +155,7 @@ No obstante, para materias más avanzadas o bien cuando es necesario hacer un te
 
 ## Comentar código que falla
 
-Volviendo al test que falla, una técnica que puede ayudar es comentar el código que falla. Entonces comentaremos la funcionalidad de registrarConsulta:
+Volviendo al test que falla, una técnica que puede ayudar es comentar el código que falla. Entonces ¿qué pasa si "cortamos el cable" que nos lleva a registrar la consulta?:
 
 ![comment failing code](/images/comment_failing_code.gif)
 
@@ -168,7 +168,7 @@ Las dos funcionalidades que resuelve cada cliente normal son:
 
 Lo que pudimos hacer hasta el momento es aislar la primera funcionalidad, y comprobar que está funcionando bien. Para continuar, debemos descomentar entonces el assert y la llamada al método `registrarConsulta`, con la ventaja de saber que la otra funcionalidad cumple con las especificaciones.
 
-El primer problema es fácil de resolver: al buscar la última vez que se consultó puede ser que el cliente no haya hecho ninguna consulta. Entonces en ese caso debemos contemplar que la ultima consulta puede no existir:
+El error inicial es fácil de resolver: al buscar la última vez que se consultó puede ser que el cliente no haya hecho ninguna consulta. Entonces en ese caso debemos contemplar que la última consulta puede no existir:
 
 ![fixing NPE, still failing test](/images/fixing_npe_still_failing_test.gif)
 
@@ -198,15 +198,15 @@ Un ejemplo interesante podría ser comentar la decisión del método `registrarC
 
 ![comment tests to detect bad code](/images/comment_failing_code.gif)
 
-Al comentar el código, ¡el test no falla! Esto muestra que nos está faltando cubrir cómo se registran las consultas para el caso del cliente que no debe plata. La solución es agregar un assert más en ese test:
+En la primera pasada nos tira error el tests que verifica que un cliente moroso debería registrar deuda. Eso es bueno y prueba que esa funcionalidad está testeada para los clientes morosos. Luego, comentamos el segundo assert de ese tests y... ¡todos los tests pasan! Eso no está tan bueno: muestra que nos está faltando cubrir cómo se registran las consultas para el caso del cliente que no debe plata. La solución es agregar un assert más en ese test:
 
 ```xtend
-	@DisplayName("si no tiene deuda puede cobrar el siniestro")
-	@Test
-	def void clienteSinDeudaPuedeCobrarSiniestro() {
-		assertTrue(clienteNormal.puedeCobrarSiniestro, "El cliente normal sin deuda debería poder crear un siniestro")
-		assertFalse(clienteNormal.tieneConsultas(LocalDate.now), "El cliente no debería tener consultas hechas para el día actual")
-	}
+@DisplayName("si no tiene deuda puede cobrar el siniestro")
+@Test
+def void clienteSinDeudaPuedeCobrarSiniestro() {
+  assertTrue(clienteNormal.puedeCobrarSiniestro, "El cliente normal sin deuda debería poder crear un siniestro")
+  assertFalse(clienteNormal.tieneConsultas(LocalDate.now), "El cliente no debería tener consultas hechas para el día actual")
+}
 ```
 
 y probar con el código de negocio comentado que **ahora sí el test falla**. Volvemos a sacar los comentarios en el código de negocio original, y tenemos los tests verdes nuevamente, pero con más robustez que antes.
@@ -220,6 +220,4 @@ Hemos visto en este ejemplo varias técnicas para corregir errores:
 - imprimir por consola en determinados puntos del código
 - comentar código para ver los efectos que produce (e incluso para detectar fallas en los tests)
 
-No hay una técnica sola que sea mejor que otras, de hecho todas se complementan para ayudarnos a corregir las cosas cuando salen mal, **que es lo más esperable cuando se trata de seres humanos que somos hermosamente imperfectos**. 
-
-
+No hay una técnica sola que sea mejor que otras, de hecho todas se complementan para ayudarnos a corregir las cosas cuando salen mal, que es parte del flujo normal de todas las personas.
