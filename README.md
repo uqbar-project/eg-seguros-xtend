@@ -198,7 +198,7 @@ Un ejemplo interesante podría ser comentar la decisión del método `registrarC
 
 ![comment tests to detect bad code](/images/comment_failing_code.gif)
 
-En la primera pasada nos tira error el tests que verifica que un cliente moroso debería registrar deuda. Eso es bueno y prueba que esa funcionalidad está testeada para los clientes morosos. Luego, comentamos el segundo assert de ese tests y... ¡todos los tests pasan! Eso no está tan bueno: muestra que nos está faltando cubrir cómo se registran las consultas para el caso del cliente que no debe plata. La solución es agregar un assert más en ese test:
+En la primera pasada nos tira error el test que verifica que un cliente moroso debería registrar deuda. Eso es bueno y prueba que esa funcionalidad está testeada para los clientes morosos. Luego, comentamos el segundo assert de ese test y... ¡todos los tests pasan! Eso no está tan bueno: muestra que nos está faltando cubrir cómo se registran las consultas para el caso del cliente que no debe plata. La solución es agregar un assert más en ese test:
 
 ```xtend
 @DisplayName("si no tiene deuda puede cobrar el siniestro")
